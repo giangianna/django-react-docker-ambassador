@@ -1,15 +1,15 @@
 from django.shortcuts import render
-from rest_framework import generics, mixins
+from rest_framework import generics, mixins, serializers
 from rest_framework.fields import REGEX_TYPE
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializer import ProductSerializer
+from .serializer import LinkSerializer, ProductSerializer
 from common.serializers import UserSerializer
 from common.authentication import JWTAuthentication
 
 
-from core.models import Product, User
+from core.models import Product, User, Link
 
 # Create your views here.
 class AmbassadorAPIView(APIView):
@@ -44,3 +44,12 @@ class ProductGenericAPIView(
 
     def delete(self, request, pk=None):
         return self.destroy(request,pk)
+
+class LinkAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk=None):
+        links = Link.objects.filter(user_id=pk)
+        serializer = LinkSerializer(links, many=True)
+        return Response(serializer.data)
