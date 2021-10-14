@@ -1,8 +1,11 @@
+from functools import partial
+from django.urls.conf import path
 from rest_framework import exceptions, serializers
 import rest_framework
 from rest_framework import response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.settings import reload_api_settings
 from rest_framework.views import APIView
 from common.authentication import JWTAuthentication
 
@@ -66,3 +69,29 @@ class LogoutAPIView(APIView):
             'message' : 'success'
         }
         return response
+
+class ProfileInfoAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk=None):
+        user = request.user
+        serializers = UserSerializer(user, data=request.data, partial=True)
+        serializers.is_valid(raise_exception=True)
+        serializers.save()
+        return Response(serializers.data)
+
+class ProfilePasswordAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk=None):
+        user = request.user
+        data = request.data
+
+        if data['password'] != data['password_confrim']:
+            raise exceptions.APIException('Password do not match!')
+
+        user.set_password(data['password'])
+        user.save()
+        return Response(UserSerializer(user).data)
