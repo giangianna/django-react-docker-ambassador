@@ -2,7 +2,9 @@ import jwt, datetime
 from app import settings
 
 class JWTAuthentication:
-    def generate_jwt(self, id):
+
+    @staticmethod
+    def generate_jwt(id):
         payload = {
             'admin_id' : id,
             'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=1),
