@@ -4,12 +4,12 @@ from rest_framework.fields import REGEX_TYPE
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializer import LinkSerializer, ProductSerializer
+from .serializer import LinkSerializer, OrderSerializer, ProductSerializer
 from common.serializers import UserSerializer
 from common.authentication import JWTAuthentication
 
 
-from core.models import Product, User, Link
+from core.models import Order, Product, User, Link
 
 # Create your views here.
 class AmbassadorAPIView(APIView):
@@ -53,3 +53,12 @@ class LinkAPIView(APIView):
         links = Link.objects.filter(user_id=pk)
         serializer = LinkSerializer(links, many=True)
         return Response(serializer.data)
+
+class OrderAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(complete=True)
+        serializers = OrderSerializer(orders, many=True)
+        return Response(serializers.data)
