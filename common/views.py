@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from common.authentication import JWTAuthentication
 
 from core.models import User
-from .serilizers import UserSerializer
+from .serializers import UserSerializer
 
 
 # Create your views here.
