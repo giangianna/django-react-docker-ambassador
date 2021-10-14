@@ -1,5 +1,6 @@
 from rest_framework import exceptions, serializers
 import rest_framework
+from rest_framework import response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -53,3 +54,15 @@ class UserAPIView(APIView):
 
     def get(self, request):
         return Response(UserSerializer(request.user).data)
+
+class LogoutAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response = Response()
+        response.delete_cookie(key='jwt')
+        response.data = {
+            'message' : 'success'
+        }
+        return response
