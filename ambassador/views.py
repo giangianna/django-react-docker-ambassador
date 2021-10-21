@@ -19,13 +19,21 @@ class ProductFrontendAPIView(APIView):
         return Response(serializer.data)
 
 class ProductBackendAPIView(APIView):
-    def get(self, _):
+    def get(self, request):
         products = cache.get('products_backend')
 
         if not products:
             time.sleep(2)
             products = list(Product.objects.all())
             cache.set('products_backend', products, timeout=60*30) # 30 min
+
+        s = request.query_params.get('s','')
+
+        if s:
+            products = list([
+                p for p in products
+                if (s.lower() in p.title.lower()) or (s.lower() in p.description.lower())
+            ])
 
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
